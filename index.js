@@ -11,7 +11,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:5174', 
+    process.env.FRONTEND_URL // Add your Vercel frontend URL here or in .env
+  ].filter(Boolean),
   credentials: true
 }));
 
@@ -20,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const fs = require('fs');
 
-// Ensure uploads folder exists
+// Ensure uploads folder exists (useful for local development)
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -36,7 +40,7 @@ app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Zeenat Portfolio API is running' });
+  res.json({ status: 'OK', message: 'Zeenat Portfolio API is running', env: process.env.NODE_ENV });
 });
 
 // MongoDB connection (IMPORTANT: connect once)
@@ -54,10 +58,18 @@ app.use(async (req, res, next) => {
   await connectDB();
   next();
 });
+
 app.get("/", (req, res) => {
   res.send("zeenat portfolio backend running ✔");
 });
-// ❌ REMOVE app.listen()
+
+// ✅ RUN LOCALLY ONLY (Avoid calling app.listen on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running locally on http://localhost:${PORT}`);
+  });
+}
 
 // ✅ EXPORT for Vercel
-module.exports = serverless(app);
+module.exports = app;
