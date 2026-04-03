@@ -46,7 +46,9 @@ app.use(async (req, res, next) => {
   await connectDB();
   next();
 });
-
+app.get("/", (req, res) => {
+  res.send("zeenat portfolio backend running ✔");
+});
 // ❌ REMOVE app.listen()
 
 // ✅ EXPORT for Vercel
