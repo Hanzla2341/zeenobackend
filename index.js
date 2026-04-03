@@ -18,13 +18,21 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files (⚠️ limited support on Vercel)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+const fs = require('fs');
+
+// Ensure uploads folder exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Static files for serving uploaded images
+app.use('/uploads', express.static(uploadDir));
 
 // Routes
-app.use('/api/contact', require('../routes/contact'));
-app.use('/api/projects', require('../routes/projects'));
-app.use('/api/admin', require('../routes/admin'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/projects', require('./routes/projects'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => {
