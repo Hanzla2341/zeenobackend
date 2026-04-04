@@ -3,6 +3,11 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 
+// GET /api/admin - Admin status
+router.get('/', (req, res) => {
+  res.json({ message: 'Admin API is active. Use /login or /verify.' });
+});
+
 // POST /api/admin/login - Admin login
 router.post('/login', (req, res) => {
   const { password } = req.body;
